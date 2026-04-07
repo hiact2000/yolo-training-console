@@ -1,0 +1,15 @@
+# path 設為專案根目錄，下方路徑皆為相對路徑
+path: ../datasets/detect
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 1
+names: ['comb']
+
+roboflow:
+  workspace: yu-chuan-liang
+  project: comb_block
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yu-chuan-liang/comb_block/dataset/3

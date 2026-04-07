@@ -1,0 +1,15 @@
+# path 設為專案根目錄，下方路徑皆為相對路徑
+path: ../datasets/detect
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 1
+names: ['Score1']
+
+roboflow:
+  workspace: yu-chuan-liang
+  project: layercombv2
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yu-chuan-liang/layercombv2/dataset/1

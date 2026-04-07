@@ -1,0 +1,34 @@
+# ======================================================
+# 雞冠辨識系統 — YOLO 訓練控制台 Dependencies
+# ======================================================
+# 建議 Python 版本：3.9 ~ 3.10
+# 建議使用 conda 管理環境：
+#   conda create -n yolo_train python=3.9
+#   conda activate yolo_train
+#   pip install -r requirements.txt
+#
+# 若有 NVIDIA GPU，建議先透過 conda 安裝 PyTorch（確保 CUDA 版本正確）：
+#   conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+#   再執行 pip install -r requirements.txt
+# ======================================================
+
+# --- YOLO 訓練與推論 ---
+ultralytics>=8.0.0
+
+# --- Computer Vision ---
+opencv-python>=4.8.0
+
+# --- GUI (訓練控制台) ---
+PyQt5>=5.15.0
+
+# --- Data Processing ---
+pandas>=1.5.0
+openpyxl>=3.1.0       # Excel 記錄（pandas 寫 .xlsx 需要）
+numpy>=1.23.0
+pyyaml>=6.0
+
+# --- 進度條 ---
+tqdm>=4.64.0
+
+# --- 標準庫（Python 內建，無需安裝）---
+# os, sys, subprocess, datetime, glob, pathlib

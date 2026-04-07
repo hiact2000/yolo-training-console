@@ -1,0 +1,83 @@
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# ==============================
+# Virtual Environments / Conda
+# ==============================
+venv/
+env/
+.venv/
+.env/
+conda-env/
+
+# ==============================
+# IDE / Editor
+# ==============================
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# Model Weights (訓練好的 & 預訓練基礎模型)
+# ==============================
+*.pt
+*.pth
+*.onnx
+*.pb
+*.tflite
+
+# ==============================
+# Datasets / Images / Videos
+# ==============================
+datasets/
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# ==============================
+# YOLO Training Outputs
+# ==============================
+runs/
+egg_project/
+comb_score_project/
+*.cache
+
+# ==============================
+# Training Log Output
+# ==============================
+train_log.xlsx
+train_log*.xlsx
+
+# ==============================
+# Runtime / User-specific Config Files
+# ==============================
+train_ui/last_config.json
+train_ui/.current_run.json
+train_ui/*test*.json
+
+# ==============================
+# Jupyter
+# ==============================
+.ipynb_checkpoints/
+*.ipynb
+
+# ==============================
+# Misc
+# ==============================
+temp/
+tmp/
+*.log
