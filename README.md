@@ -12,13 +12,14 @@ By 蘇柏瑋 2026.04.05
 2. [系統架構概覽](#2-系統架構概覽)
 3. [資料夾結構說明](#3-資料夾結構說明)
 4. [環境設定](#4-環境設定)
-5. [資料集準備流程](#5-資料集準備流程)
-6. [訓練流程](#6-訓練流程)
-7. [推論（測試模型效果）](#7-推論測試模型效果)
-8. [腳本功能說明](#8-腳本功能說明)
-9. [設定檔說明](#9-設定檔說明)
-10. [常見問題](#10-常見問題)
-11. [YOLO 基礎觀念快速入門](#11-yolo-基礎觀念快速入門)
+5. [資料集說明（Roboflow）](#5-資料集說明roboflow)
+6. [資料集準備流程](#6-資料集準備流程)
+7. [訓練流程](#7-訓練流程)
+8. [推論（測試模型效果）](#8-推論測試模型效果)
+9. [腳本功能說明](#9-腳本功能說明)
+10. [設定檔說明](#10-設定檔說明)
+11. [常見問題](#11-常見問題)
+12. [YOLO 基礎觀念快速入門](#12-yolo-基礎觀念快速入門)
 
 ---
 
@@ -159,9 +160,59 @@ print(torch.cuda.get_device_name()) # 顯示你的 GPU 名稱
 
 ---
 
-## 5. 資料集準備流程
+## 5. 資料集說明（Roboflow）
 
-### 5.1 Detection 資料集（偵測用）
+**本專案的標注資料集統一存放在 Roboflow 上。**  
+`datasets/` 資料夾不包含在這個 repo 中，請從以下連結下載。
+
+### 可用資料集
+
+| 資料集 | 用途 | 類別 | Roboflow 連結 |
+|--------|------|------|---------------|
+| comb_block v3 | Detection（找雞冠位置） | `comb`（1 類） | [下載連結](https://universe.roboflow.com/yu-chuan-liang/comb_block/dataset/3) |
+| layercombv2 v1 | Detection（Score1 標籤） | `Score1`（1 類） | [下載連結](https://universe.roboflow.com/yu-chuan-liang/layercombv2/dataset/1) |
+
+> **授權：** CC BY 4.0（可自由使用，需標明來源）
+
+### 下載方式
+
+**方法一：從瀏覽器下載**
+
+1. 點上方連結進入 Roboflow 頁面
+2. 點 **Download Dataset**
+3. 選格式：**YOLOv8**（for Detection）
+4. 下載後解壓縮，放到對應資料夾
+
+**方法二：用 Roboflow Python 套件下載（需帳號）**
+
+```python
+from roboflow import Roboflow
+
+rf = Roboflow(api_key="YOUR_API_KEY")  # 登入 Roboflow 取得 API Key
+
+# 下載 Detection 資料集
+project = rf.workspace("yu-chuan-liang").project("comb_block")
+version = project.version(3)
+dataset = version.download("yolov8", location="datasets/detect")
+```
+
+### Classification 資料集的來源
+
+Classification 用的裁切圖片（`datasets/classify/`）不在 Roboflow 上，而是由 Detection 資料集裁切而來：
+
+```
+Detection 資料集（Roboflow 下載）
+    └─► scripts/prepare_data.py 裁切
+        └─► datasets/classify/  （分類用）
+```
+
+請按照第 6 節的步驟從偵測標注自動產生分類資料集。
+
+---
+
+## 6. 資料集準備流程
+
+### 6.1 Detection 資料集（偵測用）
 
 偵測資料集使用 **YOLO 格式**，每張圖對應一個 `.txt` 標註檔。
 
@@ -189,7 +240,7 @@ datasets/detect/
 └── test/labels/
 ```
 
-### 5.2 從偵測標註製作分類資料集
+### 6.2 從偵測標註製作分類資料集
 
 如果你已有偵測標註，可以用 `scripts/prepare_data.py` 自動裁切出雞冠區域：
 
@@ -212,7 +263,7 @@ output_dir = "datasets/classify/train"
 class_map = {0: "score1", 1: "score2", ...}  # 依你的標註對應
 ```
 
-### 5.3 平衡資料集
+### 6.3 平衡資料集
 
 各等級圖片數量可能不均（例如 score1 有 500 張但 score4 只有 80 張），這會讓模型偏向多數類別。用 `balance.py` 自動平衡：
 
@@ -226,14 +277,14 @@ python scripts/balance.py
 
 ---
 
-## 6. 訓練流程
+## 7. 訓練流程
 
 ### 方法一：使用 GUI（推薦新手）
 
 ```bash
-conda activate 20250831
-cd C:/Users/hicat/PycharmProjects/PythonProject3
-python -m train_ui.app
+conda activate <你的環境名稱>
+cd /path/to/PythonProject3
+python main.py
 ```
 
 開啟後你會看到一個視窗，左側是參數設定，右側是訓練日誌。
@@ -294,7 +345,7 @@ yolo classify train data=datasets/classify model=yolov8n-cls.pt epochs=50 imgsz=
 yolo detect train data=configs/0121data.yaml model=yolov8s.pt epochs=100 imgsz=640
 ```
 
-### 6.1 訓練輸出在哪裡？
+### 7.1 訓練輸出在哪裡？
 
 訓練完成後，結果會存在 `runs/` 資料夾：
 
@@ -312,66 +363,64 @@ runs/classify/comb_score_project/run_nano_freeze/
 
 ---
 
-## 7. 推論（測試模型效果）
+## 8. 推論（測試模型效果）
 
-使用 `scripts/predict.py` 進行兩階段推論：
+### 方法一：顏色演算法推論（`scripts/test_color.py`）
+
+不需要分類模型，直接用 HSV 顏色比對判斷等級：
 
 ```bash
-python scripts/predict.py
+python scripts/test_color.py
 ```
 
-**修改腳本裡的模型路徑：**
+**修改腳本裡的設定：**
 
 ```python
-# 在 predict.py 開頭找到這兩個路徑
-detect_model_path = "runs/detect/egg_project/run_test_block/weights/best.pt"
-classify_model_path = "runs/classify/comb_score_project/run_nano_freeze/weights/best.pt"
+# 偵測模型路徑（改成你訓練好的 best.pt）
+detect_model = YOLO("runs/detect/egg_project/run_test_block/weights/best.pt")
 
-# 輸入影像或影片
-source = "test_video.mp4"  # 換成你的檔案
+# 輸入影片
+source = "test_video.mp4"  # 換成你的影片檔
 ```
 
-輸出會在視窗中顯示，每個偵測到的雞冠上面會標示顏色和分類等級。
+輸出會在視窗中顯示，每個偵測到的雞冠依平均顏色判斷等級並標注。
 
-**各等級顏色對應：**
+**原理：** 根據雞冠紅色深淺（HSV 色彩空間）與標準色比對歐式距離，不需額外訓練分類模型，可作為 ML 模型的比較基準。
 
-| 等級 | 顏色 |
-|------|------|
-| Score 1 | 紅色 |
-| Score 2 | 橘色 |
-| Score 3 | 黃色 |
-| Score 4 | 綠色 |
-| Score 5 | 藍色 |
+### 方法二：YOLO 兩階段推論
+
+如需用 YOLO 分類模型推論，可參考 `scripts/train_cls.py` 的模型載入方式，自行撰寫推論腳本，或直接使用 Comb_DetectionV2 專案的 GUI（已整合完整偵測+分類流程）。
 
 ---
 
-## 8. 腳本功能說明
+## 9. 腳本功能說明
 
 | 腳本 | 功能 | 何時使用 |
 |------|------|----------|
-| `train_ui/app.py` | 啟動訓練 GUI | 每次訓練（推薦） |
-| `scripts/train_cls.py` | 簡易分類訓練腳本 | 快速測試 |
-| `scripts/predict.py` | 兩階段推論（偵測+分類） | 測試最終效果 |
-| `scripts/prepare_data.py` | 偵測標註→分類裁切圖 | 首次準備資料 |
-| `scripts/balance.py` | 平衡各類別數量 | 資料不均時 |
-| `scripts/check_labels.py` | 檢查標註是否有誤 | 訓練前驗證資料 |
-| `scripts/test_color.py` | 顏色演算法評分（非 ML） | 對比基準 |
+| `main.py` | 啟動訓練 GUI | 每次訓練（推薦入口） |
+| `scripts/train_cls.py` | 簡易分類訓練腳本（參數寫在程式裡） | 快速測試單次訓練 |
+| `scripts/prepare_data.py` | 偵測標注轉分類裁切圖 | 首次準備分類資料集 |
+| `scripts/balance.py` | 平衡各類別數量（欠缺則增強，過多則刪除） | 資料不均時 |
+| `scripts/check_labels.py` | 檢查標注是否有誤（class_id 是否全為 0） | 訓練前驗證資料 |
+| `scripts/test_color.py` | 顏色演算法推論（HSV 色彩比對，非 ML） | 對照基準測試 |
 
 ---
 
-## 9. 設定檔說明
+## 10. 設定檔說明
 
 ### data.yaml（Detection 資料集設定）
 
 ```yaml
-train: C:/Users/.../datasets/detect/train/images   # 訓練圖片路徑
-val:   C:/Users/.../datasets/detect/valid/images   # 驗證圖片路徑
-test:  C:/Users/.../datasets/detect/test/images    # 測試圖片路徑
-nc: 1                                               # 類別數量
-names: ['comb']                                     # 類別名稱
+# path 為相對路徑基準（相對於 configs/ 資料夾位置）
+path: ../datasets/detect
+train: train/images     # 訓練圖片
+val:   valid/images     # 驗證圖片
+test:  test/images      # 測試圖片
+nc: 1                   # 類別數量
+names: ['comb']         # 類別名稱
 ```
 
-**注意**：路徑是絕對路徑，換電腦要改！
+路徑已改為相對路徑，換電腦不需修改（只要資料集放在 `datasets/detect/` 下即可）。
 
 ### last_config.json（GUI 上次設定）
 
@@ -379,7 +428,7 @@ GUI 會自動存上次的設定到 `train_ui/last_config.json`，下次開啟會
 
 ---
 
-## 10. 常見問題
+## 11. 常見問題
 
 ### Q: `CUDA is not available` 怎麼辦？
 
@@ -398,7 +447,7 @@ GUI 會自動存上次的設定到 `train_ui/last_config.json`，下次開啟會
 
 1. 先用 `balance.py` 做輕量資料增量
 2. 在訓練參數中開啟 YOLO 內建增量（`hsv_h`, `fliplr`, `mosaic` 等）
-3. 從 Roboflow 下載更多公開資料集
+3. 到 Roboflow 上標注更多圖片，再重新下載（參考第 5 節）
 
 ### Q: 訓練很久才完成，可以提早停止嗎？
 
@@ -417,13 +466,13 @@ GUI 會自動存上次的設定到 `train_ui/last_config.json`，下次開啟會
 
 ---
 
-## 11. YOLO 基礎觀念快速入門
+## 12. YOLO 基礎觀念快速入門
 
-### 11.1 什麼是 YOLO？
+### 12.1 什麼是 YOLO？
 
 YOLO（You Only Look Once）是一種即時物件偵測（Object Detection）的神經網路架構，特點是**快速且準確**。這個專案使用 Ultralytics 開發的 **YOLOv8 / YOLO11**。
 
-### 11.2 Detection vs Classification
+### 12.2 Detection vs Classification
 
 | 任務 | 說明 | 輸出 |
 |------|------|------|
@@ -433,7 +482,7 @@ YOLO（You Only Look Once）是一種即時物件偵測（Object Detection）的
 
 這個專案用 Detection 找到雞冠位置，再用 Classification 判斷等級。
 
-### 11.3 模型大小選擇
+### 12.3 模型大小選擇
 
 YOLO 依模型大小分為幾個版本（以 YOLOv8 為例）：
 
@@ -447,7 +496,7 @@ YOLO 依模型大小分為幾個版本（以 YOLOv8 為例）：
 
 **分類**用 `n`（nano）就夠，**偵測**這個專案用 `s`（small）。
 
-### 11.4 遷移學習（Transfer Learning）
+### 12.4 遷移學習（Transfer Learning）
 
 不要從頭訓練，要從**預訓練的模型**開始。預訓練模型已經學會辨識很多特徵（邊緣、顏色、形狀），遷移學習就是把這些知識應用到新任務上。
 
@@ -458,7 +507,7 @@ model.train(data="...", freeze=6, ...)  # 凍結前幾層，只訓練後段
 
 `freeze=6` 代表凍結前 6 層不更新，這樣訓練更快、不容易過擬合。
 
-### 11.5 主要超參數
+### 12.5 主要超參數
 
 | 參數 | 說明 | 影響 |
 |------|------|------|
@@ -470,7 +519,7 @@ model.train(data="...", freeze=6, ...)  # 凍結前幾層，只訓練後段
 | `freeze` | 凍結前 N 層 | 遷移學習加速 |
 | `dropout` | 隨機丟棄神經元比率 | 防止過擬合 |
 
-### 11.6 判斷訓練好不好
+### 12.6 判斷訓練好不好
 
 看 `results.csv` 或 `results.png` 的曲線：
 
@@ -484,27 +533,29 @@ model.train(data="...", freeze=6, ...)  # 凍結前幾層，只訓練後段
 
 ```
 1. 安裝環境
-   conda activate 20250831
+   conda activate <你的環境名稱>
+   pip install -r requirements.txt
 
-2. 確認資料集
+2. 下載資料集（從 Roboflow，見第 5 節）
+   → Detection 資料放到  datasets/detect/
+   → 執行 scripts/prepare_data.py 產生分類用裁切圖
+   → 執行 scripts/balance.py 平衡各類別數量
+
+3. 確認資料集結構
    datasets/classify/train/score1/ ~ score5/
    datasets/classify/valid/score1/ ~ score5/
 
-3. （如果需要）準備資料
-   python scripts/prepare_data.py
-   python scripts/balance.py
-
 4. 開始訓練
-   python -m train_ui.app
+   python main.py
    → 選擇模型、資料、設定參數、按 Start
 
 5. 訓練完成後測試
-   python scripts/predict.py
-   → 修改腳本中的模型路徑後執行
+   python scripts/test_color.py
+   → 修改腳本中的模型路徑與影片路徑後執行
 
 6. 查看結果
    runs/classify/{project}/{name}/weights/best.pt
-   train_log.xlsx（訓練記錄）
+   train_log.xlsx（每次訓練自動記錄）
 ```
 
 ---
