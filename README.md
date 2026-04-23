@@ -1,8 +1,8 @@
 # yolo-training-console
 
-這個專案的主要目的，是讓學弟妹可以**快速學會如何訓練 YOLO model**，並知道訓練完成後要去哪裡找模型結果。
+**快速學會如何訓練 YOLO model**，並知道訓練完成後要去哪裡找模型結果。
 
-這份 README 只保留重點，不講太多複雜架構。
+By 蘇柏瑋 Update 2026.04.23
 
 ---
 
@@ -56,7 +56,7 @@ yolo-training-console/
 
 ## 4. 建立環境
 
-### Step 1：建立 conda 環境
+### Step 1：建立 conda 虛擬環境 (請在Terminal中操作，並確認是否進入venv)
 
 ```bash
 conda create -n yolo_train python=3.10
@@ -65,7 +65,7 @@ conda activate yolo_train
 
 ### Step 2：安裝 PyTorch
 
-如果是 CUDA 11.8，可先用：
+如果是 CUDA 11.8，可先用 (你的電腦要有顯卡才能用GPU!!!!!!!)：
 
 ```bash
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
@@ -104,7 +104,29 @@ python main.py
 
 ---
 
-## 7. Train model 的最基本流程
+## 7. 資料集要去哪裡下載？
+
+本專案的資料集主要放在 **Roboflow**。
+
+可用資料集：
+
+- comb_block v3（Detection / comb）  
+  https://universe.roboflow.com/yu-chuan-liang/comb_block/dataset/3
+
+- layercombv2 v1（Detection / Score1）  
+  https://universe.roboflow.com/yu-chuan-liang/layercombv2/dataset/1
+
+下載方式：
+
+1. 進入資料集頁面
+2. 點選 **Download Dataset**
+3. 選擇 **YOLOv8**
+4. 解壓縮後放到專案資料夾
+5. 確認 `data.yaml` 路徑正確
+
+---
+
+## 8. Train model 的最基本流程
 
 ### Step 1：準備資料集
 
@@ -120,7 +142,7 @@ python main.py
 configs/
 ```
 
-例如：
+例如(可以去學習何為相對路徑)：
 
 ```yaml
 path: ./datasets
@@ -133,7 +155,7 @@ names: ['comb']
 
 ---
 
-### Step 2：執行訓練
+### Step 2：執行訓練 (執行前請確認資料夾擺放的位置是否正確，以及指向.yaml的名稱，以及是否已進入venv)
 
 範例指令：
 
@@ -144,7 +166,7 @@ yolo detect train model=yolov8s.pt data=configs/0121data.yaml imgsz=640 epochs=3
 這些參數的意思：
 
 * `model=yolov8s.pt`：初始模型
-* `data=configs/0121data.yaml`：資料集設定檔
+* `data=configs/0121data.yaml`：資料集設定檔 (務必確認路徑與名稱)
 * `imgsz=640`：輸入圖片大小
 * `epochs=300`：最多訓練 300 輪
 * `batch=16`：每批 16 張
@@ -154,7 +176,7 @@ yolo detect train model=yolov8s.pt data=configs/0121data.yaml imgsz=640 epochs=3
 
 ---
 
-## 8. 訓練完後要看哪裡？
+## 9. 訓練完後要看哪裡？
 
 訓練完成後，通常會產生：
 
@@ -183,9 +205,9 @@ weights/best.pt
 
 ---
 
-## 9. 學弟妹最短上手流程
+## 10. 學弟妹最短上手流程
 
-如果你是第一次接手，請照這個順序：
+如果你是第一次接觸coding，請照這個順序：
 
 ### 第一步：建環境
 
@@ -223,7 +245,7 @@ weights/best.pt
 
 ---
 
-## 10. 常見問題
+## 11. 常見問題
 
 ### Q1. `python main.py` 跑不起來
 
@@ -256,12 +278,5 @@ weights/best.pt
 
 ---
 
-## 11. 結論
 
-如果你是第一次接手，請先記住這句話：
 
-> 先把環境建好，先學會跑 train 指令，先找到 `best.pt`。
-
-這樣就夠了。
-
-後面再慢慢學資料整理、推論、GUI 細節都可以。
