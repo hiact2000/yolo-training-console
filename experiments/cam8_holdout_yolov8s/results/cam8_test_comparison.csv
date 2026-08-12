@@ -1,0 +1,7 @@
+experiment,run_name,split,weights,n_images,n_labels,precision,recall,f1,mAP50,mAP50_95,fitness,speed_preprocess_ms,speed_inference_ms,speed_postprocess_ms,confusion_matrix_tp,confusion_matrix_fp,confusion_matrix_fn
+expA,expA_original_yolov8s_cam8test,val,runs/cam8_holdout_yolov8s/expA_original_yolov8s_cam8test/weights/best.pt,100,350,0.954793,0.868571,0.909644,0.944047,0.707369,0.731036,0.195,4.3212,0.789,324,38,26
+expA,expA_original_yolov8s_cam8test,test,runs/cam8_holdout_yolov8s/expA_original_yolov8s_cam8test/weights/best.pt,103,806,0.669036,0.616541,0.641717,0.65578,0.308662,0.343374,0.1125,2.4363,0.7599,301,59,497
+expB,expB_cctv_cam9_24_yolov8s_cam8test,val,runs/cam8_holdout_yolov8s/expB_cctv_cam9_24_yolov8s_cam8test/weights/best.pt,37,289,0.771693,0.725138,0.747691,0.794422,0.412007,0.450248,0.4079,4.6747,0.7703,192,34,97
+expB,expB_cctv_cam9_24_yolov8s_cam8test,test,runs/cam8_holdout_yolov8s/expB_cctv_cam9_24_yolov8s_cam8test/weights/best.pt,103,806,0.791963,0.770677,0.781175,0.837315,0.410038,0.452765,0.1302,3.2701,0.7664,442,48,356
+expC,expC_original_cctv_cam9_24_yolov8s_cam8test,val,runs/cam8_holdout_yolov8s/expC_original_cctv_cam9_24_yolov8s_cam8test/weights/best.pt,137,639,0.872279,0.833657,0.852531,0.897984,0.600539,0.630283,0.1531,3.7783,0.7939,559,126,80
+expC,expC_original_cctv_cam9_24_yolov8s_cam8test,test,runs/cam8_holdout_yolov8s/expC_original_cctv_cam9_24_yolov8s_cam8test/weights/best.pt,103,806,0.824269,0.743108,0.781587,0.831924,0.445968,0.484564,0.1201,2.5139,0.7708,586,101,212

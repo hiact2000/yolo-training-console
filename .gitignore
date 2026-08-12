@@ -42,7 +42,9 @@ desktop.ini
 # ==============================
 # Datasets / Images / Videos
 # ==============================
-datasets/
+# Anchored to the repo root so experiment-local dataset yamls
+# (experiments/**/datasets/*.yaml) stay tracked.
+/datasets/
 *.mp4
 *.avi
 *.mov
@@ -51,10 +53,24 @@ datasets/
 # ==============================
 # YOLO Training Outputs
 # ==============================
-runs/
+/runs/
 egg_project/
 comb_score_project/
 *.cache
+
+# ==============================
+# Experiment artefacts too large or too local for git
+# ==============================
+experiments/**/predictions/
+experiments/**/weights/
+experiments/**/lists/
+experiments/**/*.png
+experiments/**/*.jpg
+experiments/**/*.jpeg
+experiments/**/*.mp4
+*.onnx
+*.engine
+*.weights
 
 # ==============================
 # Training Log Output
