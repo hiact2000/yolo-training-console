@@ -299,10 +299,11 @@ README = """# Cam8 Hold-out 實驗 — 完整結果打包
 
 ## 從哪裡開始
 
-1. `00_metrics/metrics_summary.md` — 一頁看完所有 precision / recall / mAP
-2. `01_reports/cam8_holdout_experiment_report.html` — 本次實驗完整報告
-3. `01_reports/prev_vs_cam8_holdout_comparison.html` — 與前次實驗的對照
-4. `01_reports/slide_summary.md` — 8 張投影片大綱
+1. `01_reports/EXPERIMENT_LOG.md` — 實驗日誌：做了什麼、得到什麼、哪裡不能信
+2. `00_metrics/metrics_summary.md` — 一頁看完所有 precision / recall / mAP
+3. `01_reports/cam8_holdout_experiment_report.html` — 本次實驗完整報告
+4. `01_reports/prev_vs_cam8_holdout_comparison.html` — 與前次實驗的對照
+5. `01_reports/slide_summary.md` — 8 張投影片大綱
 
 ## 資料夾結構
 
@@ -389,12 +390,18 @@ def main() -> None:
         source = EXP_ROOT / "results" / name
         if source.exists():
             shutil.copy2(source, bundle / "00_metrics" / name)
+
+    # Snapshot of the project's local Excel training log (itself gitignored).
+    train_log = args.data_root / "train_log.xlsx"
+    if train_log.exists():
+        shutil.copy2(train_log, bundle / "00_metrics" / "train_log_snapshot.xlsx")
     tally["00_metrics"] = len(list((bundle / "00_metrics").iterdir()))
 
     # ---- 01_reports ----
     reports = bundle / "01_reports"
     reports.mkdir()
     for name in (
+        "EXPERIMENT_LOG.md",
         "cam8_holdout_experiment_report.md",
         "cam8_holdout_experiment_report.html",
         "prev_vs_cam8_holdout_comparison.md",
@@ -451,6 +458,7 @@ def main() -> None:
         "eval_prev_on_cam8.py",
         "make_prev_vs_new_figures.py",
         "render_cam8_report.py",
+        "log_cam8_experiment.py",
         "build_cam8_bundle.py",
     ):
         source = REPO_ROOT / "scripts" / name
